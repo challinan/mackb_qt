@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QLCDNumber>
 #include <QProgressBar>
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
 
 #define DEFAULT_CW_SPEED 22
 
@@ -9,13 +11,27 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    int i;
+    QSerialPort *serialPort;
+    QList<QSerialPortInfo> serialPortList;
+    QByteArray charArray;
+
+    /* Scan the system for all available serial ports */
+    serialPortList = QSerialPortInfo::availablePorts();
+    for (int i = 0; i < serialPortList.size(); ++i) {
+        charArray = serialPortList.at(i).description().toLatin1();
+        printf("serialPortList: %s\n", charArray.data());
+    }
+
+    serialPort = new QSerialPort(this);
+
     printf("This is the main window constructor\n");
     fflush(stdout);
     ui->setupUi(this);
 
     /* We're alive, do any setup required */
     this->speed = DEFAULT_CW_SPEED;
-    int i = this->ui->lcdSpeed->digitCount();
+    i = this->ui->lcdSpeed->digitCount();
     printf("digit count = %d\n", i);
     fflush(stdout);
     this->ui->lcdSpeed->display(speed);
